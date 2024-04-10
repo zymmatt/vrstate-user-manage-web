@@ -8,21 +8,20 @@
                 </el-breadcrumb-item>
             </el-breadcrumb>
         </div>
+
         <div class="r-content">
+            <changelanguage />
             <el-dropdown @command="handleClick">
                 <span class="el-dropdown-link">
-                    <img class="user" src="../assets/images/inventeclogo.png" alt="">
+                    <img class="user" src="../assets/images/user-default.png" alt="">
                 </span>
                 <el-dropdown-menu slot="dropdown">
-                    <!-- <el-dropdown-item>个人信息</el-dropdown-item> -->
+                    <!-- <el-dropdown-item>个人信息</el-dropdown-item>   -->
                     <el-dropdown-item command="logout">退出</el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
+        </div>
 
-        </div>
-        <div class="r-content">
-            <changelanguage />
-        </div>
     </div>
 </template>
 
@@ -68,9 +67,7 @@ export default {
 
     .l-content {
         display: flex;
-        // 上下居中
         align-items: center;
-
         .el-breadcrumb {
             margin-left: 15px;
 
@@ -89,6 +86,14 @@ export default {
                 }
             }
         }
+    }
+    .r-content {
+        > div {
+            margin-right: 10px;
+        }
+
+        display: flex;
+        align-items: center;
     }
 
     .el-dropdown-link {

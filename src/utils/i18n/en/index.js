@@ -5,7 +5,53 @@ const en = {
         username: 'Username',
         password: 'Password',
         submit: 'Submit',
-        signup: 'Sign Up'
+        signup: 'Sign Up',
+        register: 'Register',
+        company: 'company',
+        job: 'job',
+        mail: 'mail',
+        phone: 'phone',
+        name: 'name',
+        cancel: 'Cancel',
+    },
+    home:{
+        overview: "Overview",
+        account: "Account Detail",
+        app: "App and License",
+        name: "Name",
+        mail: "Mail",
+        company: "Company",
+        phone: "Phone",
+        authority: "Permission",
+        admin: "Admin",
+        child: "Authorized",
+    },
+    product:{
+        title: "All products and services",
+        name: "Name",
+        total: "Total",
+        occupied: "Occupied",
+        remain: "Remain",
+    },
+    user:{
+        title: "Users",
+        name: "Name",
+        email: "Email",
+        permission: "Permission",
+        products: "Products",
+        edit: "Edit",
+        addUser: "+ New",
+        newUser: "New User",
+        newProduct: "+ App",
+        noDataText: "None",
+        addProdHintMessage: "This will grant user the APP authority, are you sure?",
+        deleteProdHintMessage: "This will remove the APP authority from this user, are you sure?",
+        hint: "Hint",
+        confirm: "Confirm",
+        cancel: "Cancel",
+        cancelDelete: "Undo",
+        operationSuccess: "Success",
+        done: "Done",
     },
     tab:{
         longtitle: 'Admin Console',
@@ -13,7 +59,7 @@ const en = {
         home: 'Home',
         product: 'Product',
         user: 'User'
-    }
+    },
 
 }
 export default en

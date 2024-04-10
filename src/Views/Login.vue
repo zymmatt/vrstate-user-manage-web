@@ -1,12 +1,38 @@
 <template>
     <div>
         <changelanguage />
+        <el-dialog :title="$t('login.register')" :visible.sync="dialogVisible"  width="50%" :before-close="closeDialog">
+            <el-form :inline="true" :model="registerform" :rules="registerrules" ref="registerform" label-width="80px">
+                <el-form-item :label="$t('login.mail')" prop="mail" >
+                    <el-input placeholder="" v-model="registerform.mail"></el-input>
+                </el-form-item>
+                <el-form-item :label="$t('login.password')" prop="password">
+                    <el-input type="password" placeholder="" v-model="registerform.password"></el-input>
+                </el-form-item>
+                <el-form-item :label="$t('login.name')" prop="name">
+                    <el-input placeholder="" v-model="registerform.name"></el-input>
+                </el-form-item>
+                <el-form-item :label="$t('login.company')" prop="company">
+                    <el-input placeholder="" v-model="registerform.company"></el-input>
+                </el-form-item>
+                <el-form-item :label="$t('login.job')" prop="job">
+                    <el-input placeholder="" v-model="registerform.job"></el-input>
+                </el-form-item>
+                <el-form-item :label="$t('login.phone')" prop="phone">
+                    <el-input placeholder="" v-model="registerform.phone"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="closeDialog">{{$t("login.cancel")}}</el-button>
+                <el-button type="primary" @click="submitRegister">{{$t("login.submit")}}</el-button>
+            </div>
+        </el-dialog>
         <el-form ref="form" class="login_container" :model="login" status-icon :rules="rules" label-width="70px">
             <!-- h3要放在里面:只能有一个根,且title也是表单的一部分 -->
             <h3 class="login_title">{{$t("login.title")}}</h3>
             <!-- prop对应rules里的键 -->
-            <el-form-item :label="$t('login.username')" prop="username">
-                <el-input v-model="login.username" autocomplete="off"></el-input>
+            <el-form-item :label="$t('login.mail')" prop="mail">
+                <el-input v-model="login.mail" autocomplete="off"></el-input>
             </el-form-item>
 
             <el-form-item :label="$t('login.password')" prop="password">
@@ -14,7 +40,7 @@
             </el-form-item>
 
             <el-form-item>
-                <el-button @click="submit" type="primary" >{{$t("login.submit")}}</el-button>
+                <el-button @click="submitLogin" type="primary" >{{$t("login.submit")}}</el-button>
                 <el-button @click="signup" type="primary" >{{$t("login.signup")}}</el-button>
             </el-form-item>
         </el-form>
@@ -25,22 +51,40 @@
 import Cookie from 'js-cookie';
 import i18n from '../utils/i18n/index';
 import changelanguage from '../components/ChangeLanguage';
-//  import { getMenu } from '../api/user'
+import { registerByMail, loginByMail } from '../api/user';
+
 export default {
     components: {
         changelanguage
     },
     data() {
         return {
+            form: {
+                mail: '',
+                password: ''
+            },
+            registerform:{
+                password: '',
+                name: '',
+                company: '',
+                job: '',
+                mail: '',
+                phone: ''
+            },
             // 登陆数据
             login: {
-                username: '',
+                mail: '',
                 password: ''
             },
             // 校验规则
             rules: {
-                username: [{ required: 'true', message: '请输入用户名', trigger: 'blur' }],
-                password: [{ required: 'true', message: '请输入用户名', trigger: 'blur' }]
+                mail: [{ required: 'true', message: ' ', trigger: 'blur' }],
+                password: [{ required: 'true', message: ' ', trigger: 'blur' }],
+                name: [{ required: 'true', message: ' ', trigger: 'blur' }],
+            },
+            registerrules: {
+                mail: [{ required: 'true', message: ' ', trigger: 'blur' }],
+                password: [{ required: 'true', message: ' ', trigger: 'blur' }]
             },
             routedata: {
                 menu: [
@@ -68,18 +112,76 @@ export default {
                 ],
                 token: "token_iecshowroom",
                 message: '获取成功'
-            }
-
+            },
+            dialogVisible: false,
         }
     },
     methods: {
         changeLanguage(tolang) {
             this.$i18n.locale = tolang
         },
-        submit() {
+        openForm() {
+            this.dialogVisible = true
+        },
+        // 关闭对话框
+        closeDialog() {
+            // 先重置
+            this.$refs.form.resetFields()
+            // 后关闭
+            this.dialogVisible = false
+        },
+        submitRegister(){
+            this.$refs.registerform.validate((valid) => {
+                if (valid) {
+                    registerByMail(this.registerform).then((response)=>{
+                        let temp = response.data.data;
+                        if (temp==1){
+                            this.$message({
+                                type: 'success',
+                                message: response.data.msg,
+                            });
+                        } else {
+                            this.$message({
+                                type: 'fail',
+                                message: response.data.msg,
+                            });
+                        }
+                    })
+                }
+
+            })
+
+        },
+        submitLogin() {
             // 表单的校验
             this.$refs.form.validate((valid) => {
                 if (valid) {
+                    loginByMail({params:{mail: this.login.mail, password: this.login.password}}).then((response)=>{
+                        let code = response.data.code;
+                        sessionStorage.setItem('user', JSON.stringify(response.data.data));
+                        if (code != 200){
+                            this.$message({
+                                type: 'fail',
+                                message: response.data.msg,
+                            });
+                        } else {
+                            this.$message({
+                                type: 'success',
+                                message: response.data.msg,
+                            });
+                            // 记录cookie
+                            Cookie.set('token_iecshowroom',this.routedata.token)
+                            // 设置菜单
+                            this.$store.commit('setMenu',this.routedata.menu)
+                            // 动态添加路由
+                            this.$store.commit('addMenu',this.$router)
+                            // 跳转到首页
+                            this.$router.push('/home')
+                        }
+
+
+                    })
+                    /*
                     // 传入表单数据
                     const username = this.login.username;
                     const password = this.login.password;
@@ -105,34 +207,20 @@ export default {
                         // 验证失败的弹窗
                         this.$message.error(data.data.data.message);
                     }
-                    /*
-                    getMenu(this.login).then((data) => {
-                        // console.log(data);
-                        if(data.data.code===20000){
-                            // 记录cookie
-                            Cookie.set('token',data.data.data.token)
-                            // 设置菜单
-                            this.$store.commit('setMenu',data.data.data.menu)
-                            // 动态添加路由
-                            this.$store.commit('addMenu',this.$router)
-                            // 跳转到首页
-                            this.$router.push('/home')
-                        }else{
-                            // 验证失败的弹窗
-                            this.$message.error(data.data.data.message);
-                        }
-                    })
                     */
 
                 }
             })
         },
-        signup(){}
+        signup(){
+            this.openForm()
+        },
     }
 }
 </script>
 
 <style lang="less" scoped>
+
 .right-top {
     position: absolute;
     top: 0;
@@ -140,6 +228,7 @@ export default {
     background-color: lightblue;
     padding: 10px;
 }
+
 .login_container {
     width: 350px;
     border: 1px solid #eaeaea;
