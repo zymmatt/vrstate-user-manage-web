@@ -20,6 +20,10 @@ export const updateUser = (data) => {
     return http.put('/users/updateUser', data)
 }
 
+export const getUserById = (params) => {
+    return http.get('/users/getUserById', params)
+}
+
 export const getAuthList = (params) => {
     return http.get('/users/getAuthList', params)
 }
@@ -49,7 +53,4 @@ export const removeProdSeat = (data) => {
 export const addProdSeat = (data) => {
     return http.post('/users/addProdSeat', data)
 }
-
-
-
 

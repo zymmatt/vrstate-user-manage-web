@@ -1,6 +1,6 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
-  publicPath: "/iec-admin",
+  publicPath: "/vrstatehall/asiau",
   transpileDependencies: true,
   lintOnSave:false
 })

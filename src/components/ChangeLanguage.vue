@@ -28,7 +28,7 @@ export default {
     methods: {
         change(tolang) {
             this.$i18n.locale = tolang
-            console.log(this.$i18n.locale)
+            localStorage.setItem('lang', tolang)
             this.$store.commit('Menulang')
         },
 

@@ -22,9 +22,11 @@ const en = {
         mail: "Mail",
         company: "Company",
         phone: "Phone",
+        job: 'job',
         authority: "Permission",
         admin: "Admin",
         child: "Authorized",
+        edit: "Edit",
     },
     product:{
         title: "All products and services",
@@ -52,6 +54,10 @@ const en = {
         cancelDelete: "Undo",
         operationSuccess: "Success",
         done: "Done",
+        submit: "Submit",
+        mailExists: "Email already registered",
+        emptyList: "Add a Product",
+        nullUser: "UnRegistered"
     },
     tab:{
         longtitle: 'Admin Console',

@@ -22,9 +22,11 @@ const zh = {
         mail: "邮箱",
         company: "公司",
         phone: "联系电话",
+        job: '职业',
         authority: "权限",
         admin: "管理员",
         child: "授权用户",
+        edit: "编辑",
     },
     product:{
         title: "产品和服务",
@@ -52,6 +54,10 @@ const zh = {
         cancelDelete: "撤销操作",
         operationSuccess: "操作成功",
         done: "完成",
+        submit: '提交',
+        mailExists: "邮箱已注册",
+        emptyList: "需要授权产品",
+        nullUser: "未注册用户",
     },
     tab:{
         longtitle: '虚实元邦用户控制台',

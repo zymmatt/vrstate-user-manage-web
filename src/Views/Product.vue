@@ -41,9 +41,8 @@ export default {
     },
     methods: {
         getAuth(){
-            getAdminProdSummary({params:{userid: this.account.userid}}).then((response)=> {
+            getAdminProdSummary({params:{useridstr: this.account.userid}}).then((response)=> {
                 this.prodList = response.data.data;
-                console.log(this.prodList);
                 for (var i=0; i<this.prodList.length;i++){
                     const tempdict = {
                         name: this.prodList[i].product.name,
@@ -51,7 +50,6 @@ export default {
                         occupied: this.prodList[i].occupiedSeats,
                         remain: this.prodList[i].remainSeats,
                     }
-                    console.log(tempdict);
                     this.productData.push(tempdict);
                 }
                 //getAuthList({params:{userid: this.account.userid, mail: this.account.mail, isadmin: this.account.isadmin}}).then((response)=>{

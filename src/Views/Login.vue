@@ -80,13 +80,14 @@ export default {
             rules: {
                 mail: [{ required: 'true', message: ' ', trigger: 'blur' }],
                 password: [{ required: 'true', message: ' ', trigger: 'blur' }],
-                name: [{ required: 'true', message: ' ', trigger: 'blur' }],
+
             },
             registerrules: {
                 mail: [{ required: 'true', message: ' ', trigger: 'blur' }],
-                password: [{ required: 'true', message: ' ', trigger: 'blur' }]
+                password: [{ required: 'true', message: ' ', trigger: 'blur' }],
+                name: [{ required: 'true', message: ' ', trigger: 'blur' }],
             },
-            routedata: {
+            adminroutedata: {
                 menu: [
                     {
                         path: '/home',
@@ -110,7 +111,20 @@ export default {
                         url: 'User.vue'
                     },
                 ],
-                token: "token_iecshowroom",
+                token: "token_admin",
+                message: '获取成功'
+            },
+            childroutedata: {
+                menu: [
+                    {
+                        path: '/home',
+                        name: 'home',
+                        label: i18n.t('tab.home'),
+                        icon: 's-home',//el-icon-s-home,来自Element ui
+                        url: 'Home.vue'
+                    }
+                ],
+                token: "token_child",
                 message: '获取成功'
             },
             dialogVisible: false,
@@ -140,6 +154,7 @@ export default {
                                 type: 'success',
                                 message: response.data.msg,
                             });
+                            this.closeDialog();
                         } else {
                             this.$message({
                                 type: 'fail',
@@ -165,50 +180,26 @@ export default {
                                 message: response.data.msg,
                             });
                         } else {
-                            this.$message({
-                                type: 'success',
-                                message: response.data.msg,
-                            });
-                            // 记录cookie
-                            Cookie.set('token_iecshowroom',this.routedata.token)
-                            // 设置菜单
-                            this.$store.commit('setMenu',this.routedata.menu)
-                            // 动态添加路由
-                            this.$store.commit('addMenu',this.$router)
-                            // 跳转到首页
-                            this.$router.push('/home')
+                            if (response.data.data.isadmin){
+                                // 记录cookie
+                                Cookie.set('token_iecshowroom',this.adminroutedata.token)
+                                // 设置菜单
+                                this.$store.commit('setMenu',this.adminroutedata.menu)
+                                // 动态添加路由
+                                this.$store.commit('addMenu',this.$router)
+                                // 跳转到首页
+                                this.$router.push('/home')
+                            } else {
+                                Cookie.set('token_iecshowroom',this.childroutedata.token)
+                                this.$store.commit('setMenu',this.childroutedata.menu)
+                                this.$store.commit('addMenu',this.$router)
+                                this.$router.push('/home')
+                            }
+
                         }
 
 
                     })
-                    /*
-                    // 传入表单数据
-                    const username = this.login.username;
-                    const password = this.login.password;
-                    if (username === 'admin' && password === 'inventec') {
-                        // 记录cookie
-                        Cookie.set('token_iecshowroom',this.routedata.token)
-                        // 设置菜单
-                        this.$store.commit('setMenu',this.routedata.menu)
-                        // 动态添加路由
-                        this.$store.commit('addMenu',this.$router)
-                        // 跳转到首页
-                        this.$router.push('/home')
-                    } else if (username === 'allen' && password === 'taiwan119'){
-                        // 记录cookie
-                        Cookie.set('token_iecshowroom',this.routedata_vrphoto.token)
-                        // 设置菜单
-                        this.$store.commit('setMenu',this.routedata_vrphoto.menu)
-                        // 动态添加路由
-                        this.$store.commit('addMenu',this.$router)
-                        // 跳转到首页
-                        this.$router.push('/vrphoto')
-                    } else {
-                        // 验证失败的弹窗
-                        this.$message.error(data.data.data.message);
-                    }
-                    */
-
                 }
             })
         },

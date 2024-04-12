@@ -17,17 +17,19 @@
                     </el-tag>
 
                     <el-select
-                      v-model="newProdId"
+                      v-model="ProdIdlist"
                       v-if="tagVisible"
                       size="small"
                       placeholder=" "
+                      multiple
                       :no-data-text="$t('user.noDataText')"
-                      @change="handleInputConfirm"
+                      @change="newHandleSelect"
                     >
                         <el-option
                             v-for="item in Prodoptions"
                             :key="item.value"
                             :label="item.label"
+                            :disabled="item.disabled"
                             :value="item.value">
                         </el-option>
                     </el-select>
@@ -35,7 +37,9 @@
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="newUsercloseDialog">{{$t("user.done")}}</el-button>
+
+                <el-button type="primary" @click="createNew">{{$t("user.submit")}}</el-button>
+                <el-button @click="newUsercloseDialog">{{$t("user.cancel")}}</el-button>
             </div>
         </el-dialog>
         <el-dialog :title="$t('user.edit')" :visible.sync="editdialogVisible"  width="50%" :before-close="editcloseDialog">
@@ -73,7 +77,7 @@
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="editcloseDialog">{{$t("user.done")}}</el-button>
+                <el-button @click="editcloseDialog">{{$t("user.cancel")}}</el-button>
             </div>
         </el-dialog>
         <el-card>
@@ -126,15 +130,17 @@ export default {
             tagVisible: false,
             dynamicTags: [],
             Prodoptions: [],
+            mailList: [],
             newProdId: "",
+            ProdIdlist: "",
         }
     },
     methods: {
         async getData(){
             this.userData = [];
-            await getChildSummary({params:{userid: this.account.userid}}).then((response)=> {
+            this.mailList = [];
+            await getChildSummary({params:{useridstr: this.account.userid}}).then((response)=> {
                 this.dataList = response.data.data;
-                console.log(this.dataList);
             });
 
             for (var i=0; i<this.dataList.length;i++){
@@ -144,17 +150,25 @@ export default {
 
                 }
                 const tempdict = {
-                    name: this.dataList[i].user.name,
-                    email: this.dataList[i].user.mail,
+                    // name: this.dataList[i].user.name,
+                    email: this.dataList[i].mail,
                     permission: i18n.t('home.child'),
                     products: prod,
                     productidlist: this.dataList[i].prodlist,
                 }
+                if (this.dataList[i].user == null){
+                    tempdict['name'] = i18n.t('user.nullUser')
+                }else{
+                    tempdict['name'] = this.dataList[i].user.name
+                }
+
                 this.userData.push(tempdict);
+                this.mailList.push(this.dataList[i].mail);
             }
 
         },
         handlecreate(){
+            this.ProdIdlist = [];
             this.dynamicTags = [];
             this.current_mail = "";
             this.tagVisible = false;
@@ -175,7 +189,7 @@ export default {
                 cancelButtonText: i18n.t('user.cancel'),
                 type: 'warning'
             }).then(() => {
-                removeProdSeat({params:{userid: this.account.userid, prodid: tag.id, mail: this.current_mail}}).then((response)=> {
+                removeProdSeat({params:{useridstr: this.account.userid, prodid: tag.id, mail: this.current_mail}}).then((response)=> {
                     this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
                     this.$message({
                         type: 'success',
@@ -196,10 +210,9 @@ export default {
             for (var i=0; i<this.dynamicTags.length;i++){
                 existIdlist.push(this.dynamicTags[i].id)
             }
-            console.log(existIdlist);
             this.Prodoptions = [];
             this.newProdId = "";
-            getAdminProdSummary({params:{userid: this.account.userid}}).then((response)=> {
+            getAdminProdSummary({params:{useridstr: this.account.userid}}).then((response)=> {
                 const temp = response.data.data;
                 for (var i=0; i<temp.length;i++){
                     this.appdict[temp[i].product.id] = temp[i].product;
@@ -214,22 +227,46 @@ export default {
                     if (existIdlist.indexOf(temp[i].product.id) != -1 || temp[i].remainSeats == 0){
                         tempdict["disabled"] = true
                     }
-                    console.log(tempdict);
                     this.Prodoptions.push(tempdict);
                 }
                 this.tagVisible = true;
             });
 
         },
+        newHandleSelect(){
+
+        },
+        async createNew(){
+            if (this.mailList.indexOf(this.current_mail) != -1) {
+                this.$message({
+                    type: 'error',
+                    message: i18n.t('user.mailExists')
+                });
+            } else if (this.ProdIdlist.length==0){
+                this.$message({
+                    type: 'error',
+                    message: i18n.t('user.emptyList')
+                });
+            } else {
+                for (var i=0; i<this.ProdIdlist.length;i++){
+                    await addProdSeat({useridstr: this.account.userid, prodid: this.ProdIdlist[i], mail: this.current_mail})
+                }
+                this.tagVisible = false;
+                this.$message({
+                    type: 'success',
+                    message: i18n.t('user.operationSuccess'),
+                });
+                this.newUsercloseDialog()
+                this.getData()
+            }
+        },
         editHandleSelect(){
-            console.log(this.newProdId);
-            console.log(this.appdict);
             this.$confirm(i18n.t('user.addProdHintMessage'), i18n.t('user.hint'), {
                 confirmButtonText: i18n.t('user.confirm'),
                 cancelButtonText: i18n.t('user.cancel'),
                 type: 'warning'
             }).then(() => {
-                addProdSeat({userid: this.account.userid, prodid: this.newProdId, mail: this.current_mail}).then((response)=> {
+                addProdSeat({useridstr: this.account.userid, prodid: this.newProdId, mail: this.current_mail}).then((response)=> {
                     this.dynamicTags.push(this.appdict[this.newProdId])
                     // this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
                     this.$message({
@@ -257,7 +294,7 @@ export default {
     },
     created() {
         const userdata = JSON.parse(sessionStorage.getItem('user'));
-        this.account.userid = userdata.userid;
+        this.account.userid = userdata.useridstr;
         this.account.name = userdata.name;
         this.account.mail = userdata.mail;
         this.account.company = userdata.company;

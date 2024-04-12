@@ -22,9 +22,11 @@ const tw = {
         mail: "郵箱",
         company: "公司",
         phone: "聯繫電話",
+        job: '職業',
         authority: "權限",
         admin: "管理員",
         child: "授權用戶",
+        edit: "編輯",
     },
     product:{
         title: "產品和服務",
@@ -52,6 +54,10 @@ const tw = {
         cancelDelete: "撤銷操作",
         operationSuccess: "操作成功",
         done: "完成",
+        submit: '提交',
+        mailExists: "郵箱已註冊",
+        emptyList: "需要授權產品",
+        nullUser: "未註冊用戶"
     },
     tab:{
         longtitle: '虛實元邦用戶控制台',
