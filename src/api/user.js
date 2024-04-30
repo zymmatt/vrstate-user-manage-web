@@ -54,3 +54,14 @@ export const addProdSeat = (data) => {
     return http.post('/users/addProdSeat', data)
 }
 
+export const setValidateCode = (params) => {
+    return http.get('/users/setValidateCode', params)
+}
+
+export const checkValidateCode = (params) => {
+    return http.get('/users/checkValidateCode', params)
+}
+
+export const resetPassword = (data) => {
+    return http.post('/users/resetPassword', data)
+}

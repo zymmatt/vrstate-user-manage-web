@@ -1,7 +1,30 @@
 <template>
-    <div>
+    <div class="background">
         <changelanguage />
-        <el-dialog :title="$t('login.register')" :visible.sync="dialogVisible"  width="50%" :before-close="closeDialog">
+        <el-dialog :title="$t('login.changePW')" :visible.sync="changePWDialogVisible"  width="20%" :before-close="changePWCloseDialog">
+            <div v-if="enableResetPw==false">
+                <el-form class="changePW" label-width="70px">
+                    <el-form-item class="aLine" :label="$t('user.email')">
+                        <el-input v-model="current_mail" placeholder=" " style="width: 230px;"></el-input>
+                    </el-form-item>
+                    <el-form-item class="aLine" :label="$t('login.validateCode')">
+                        <el-input v-model="validateCode" placeholder=" " style="width: 120px;"></el-input>
+                        <el-button class="commonButton"  @click="getValidate">{{$t("login.send")}}</el-button>
+                    </el-form-item>
+                 </el-form>
+                 <el-button class="middleButton" type="primary" @click="checkValidate">{{$t("login.validate")}}</el-button>
+            </div>
+            <div v-else>
+                <el-form class="changePW" label-width="70px">
+                    <el-form-item class="aLine"  :label="$t('login.password')"  label-width="80px">
+                        <el-input v-model="newPW" placeholder=" " style="width: 200px;" show-password></el-input>
+                    </el-form-item>
+                </el-form>
+                <el-button  class="middleButton" type="primary" @click="resetPW">{{$t("login.submit")}}</el-button>
+            </div>
+
+        </el-dialog>
+        <el-dialog :title="$t('login.register')" :visible.sync="registerDialogVisible"  width="50%" :before-close="registerCloseDialog">
             <el-form :inline="true" :model="registerform" :rules="registerrules" ref="registerform" label-width="80px">
                 <el-form-item :label="$t('login.mail')" prop="mail" >
                     <el-input placeholder="" v-model="registerform.mail"></el-input>
@@ -23,25 +46,22 @@
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
-                <el-button @click="closeDialog">{{$t("login.cancel")}}</el-button>
-                <el-button type="primary" @click="submitRegister">{{$t("login.submit")}}</el-button>
+                <el-button class="commonButton" @click="registerCloseDialog">{{$t("login.cancel")}}</el-button>
+                <el-button class="commonButton" type="primary" @click="submitRegister">{{$t("login.submit")}}</el-button>
             </div>
         </el-dialog>
         <el-form ref="form" class="login_container" :model="login" status-icon :rules="rules" label-width="70px">
-            <!-- h3要放在里面:只能有一个根,且title也是表单的一部分 -->
             <h3 class="login_title">{{$t("login.title")}}</h3>
-            <!-- prop对应rules里的键 -->
-            <el-form-item :label="$t('login.mail')" prop="mail">
+            <el-form-item :label="$t('login.mail')" label-width="80px" prop="mail">
                 <el-input v-model="login.mail" autocomplete="off"></el-input>
             </el-form-item>
-
-            <el-form-item :label="$t('login.password')" prop="password">
-                <el-input type="password" v-model="login.password" autocomplete="off"></el-input>
+            <el-form-item :label="$t('login.password')" label-width="80px" prop="password">
+                <el-input show-password v-model="login.password" autocomplete="off" ></el-input>
+                <el-button style="margin-left: 115px" size="mini" @click="openValidate" >{{$t("login.forgetpw")}}</el-button>
             </el-form-item>
-
             <el-form-item>
-                <el-button @click="submitLogin" type="primary" >{{$t("login.submit")}}</el-button>
-                <el-button @click="signup" type="primary" >{{$t("login.signup")}}</el-button>
+                <el-button class="commonButton" @click="submitLogin" type="primary" >{{$t("login.signin")}}</el-button>
+                <el-button class="commonButton" @click="signup" type="primary" >{{$t("login.signup")}}</el-button>
             </el-form-item>
         </el-form>
     </div>
@@ -51,7 +71,7 @@
 import Cookie from 'js-cookie';
 import i18n from '../utils/i18n/index';
 import changelanguage from '../components/ChangeLanguage';
-import { registerByMail, loginByMail } from '../api/user';
+import { registerByMail, loginByMail, setValidateCode, checkValidateCode, resetPassword } from '../api/user';
 
 export default {
     components: {
@@ -127,7 +147,13 @@ export default {
                 token: "token_child",
                 message: '获取成功'
             },
-            dialogVisible: false,
+            registerDialogVisible: false,
+            changePWDialogVisible: false,
+            current_mail: '',
+            validateCode: '',
+            useridstr: '',
+            enableResetPw: false,
+            newPW: '',
         }
     },
     methods: {
@@ -135,14 +161,16 @@ export default {
             this.$i18n.locale = tolang
         },
         openForm() {
-            this.dialogVisible = true
+            this.registerDialogVisible = true
         },
-        // 关闭对话框
-        closeDialog() {
+        registerCloseDialog() {
             // 先重置
             this.$refs.form.resetFields()
             // 后关闭
-            this.dialogVisible = false
+            this.registerDialogVisible = false
+        },
+        changePWCloseDialog() {
+            this.changePWDialogVisible = false
         },
         submitRegister(){
             this.$refs.registerform.validate((valid) => {
@@ -154,7 +182,7 @@ export default {
                                 type: 'success',
                                 message: response.data.msg,
                             });
-                            this.closeDialog();
+                            this.registerCloseDialog();
                         } else {
                             this.$message({
                                 type: 'fail',
@@ -174,6 +202,8 @@ export default {
                     loginByMail({params:{mail: this.login.mail, password: this.login.password}}).then((response)=>{
                         let code = response.data.code;
                         sessionStorage.setItem('user', JSON.stringify(response.data.data));
+                        sessionStorage.setItem('userid', response.data.data.useridstr);
+                        sessionStorage.setItem('sessionid', response.data.msg);
                         if (code != 200){
                             this.$message({
                                 type: 'fail',
@@ -203,14 +233,90 @@ export default {
                 }
             })
         },
+        getValidate(){
+            setValidateCode({params:{mail: this.current_mail}}).then((response)=>{
+                if (response.data.code!=200){
+                    this.$message({
+                        type: 'fail',
+                        message: '郵箱錯誤',
+                    });
+                } else {
+                    this.$message({
+                        type: 'success',
+                        message: '驗證碼已發送',
+                    });
+                }
+            })
+        },
+        checkValidate(){
+            if (this.current_mail=='' || this.validateCode==''){
+                this.$message({
+                    type: 'fail',
+                    message: '信息不完整',
+                });
+            }else{
+                checkValidateCode({params:{mail: this.current_mail, code: this.validateCode}}).then((response)=>{
+                    if (response.data.code!=200){
+                        this.$message({
+                            type: 'fail',
+                            message: '驗證碼失效',
+                        });
+                    } else {
+                        this.$message({
+                            type: 'success',
+                            message: '驗證成功',
+                        });
+                        this.enableResetPw = true;
+
+                    }
+                })
+            }
+        },
+        resetPW(){
+            resetPassword({password: this.newPW, mail:this.current_mail}).then((response)=>{
+                this.$message({
+                    type: 'success',
+                    message: '重置密碼成功',
+                });
+                this.enableResetPw = false;
+                this.changePWDialogVisible = false;
+            })
+        },
         signup(){
             this.openForm()
         },
+        openValidate(){
+            this.current_mail = '';
+            this.newPW = '';
+            this.validateCode = '';
+            this.enableResetPw = false;
+            this.changePWDialogVisible = true;
+        },
+
     }
 }
 </script>
 
 <style lang="less" scoped>
+
+
+.changePW {
+    .aLine *{
+        margin-right: 20px;
+    }
+
+
+
+}
+
+.commonButton {
+    width: 90px;
+}
+
+.middleButton {
+    margin-left: 120px;
+    width: 90px;
+}
 
 .right-top {
     position: absolute;
@@ -221,7 +327,7 @@ export default {
 }
 
 .login_container {
-    width: 350px;
+    width: 390px;
     border: 1px solid #eaeaea;
 
     // 居中

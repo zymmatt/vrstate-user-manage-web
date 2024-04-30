@@ -57,6 +57,7 @@
 <script>
 import i18n from '../utils/i18n/index';
 import { getAuthList, getProdList, getProdSeat, updateUser, getUserById } from '../api/user';
+import axios from "axios";
 
 export default {
     components: {
@@ -92,6 +93,14 @@ export default {
     },
     methods: {
         getAuth(){
+
+            //axios.get('http://localhost:8002/users/getAuthList',{
+            //    headers: {userid: this.account.userid, sessionid: sessionStorage.getItem('sessionid')},
+            //    params:{useridstr: this.account.userid, mail: this.account.mail, isadmin: this.account.isadmin}
+            //}).then((response)=>{
+            //    this.applist = response.data.data;
+            //})
+
             getAuthList({params:{useridstr: this.account.userid, mail: this.account.mail, isadmin: this.account.isadmin}}).then((response)=>{
                 this.applist = response.data.data;
             })

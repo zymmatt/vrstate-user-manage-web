@@ -12,6 +12,11 @@ export default {
 <style>
 html,
 body,
+#app {
+  margin: 0;
+  padding: 0;
+  background-color: #F0F5FA;
+}
 h3,
 p {
   margin: 0;

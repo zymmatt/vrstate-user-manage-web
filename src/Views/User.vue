@@ -85,7 +85,7 @@
             <el-button type="primary" @click="handlecreate">{{$t("user.addUser")}}</el-button>
             <el-table :data="userData" style="width: 100%" :empty-text="$t('user.noDataText')">
                 <el-table-column prop="name" :label="$t('user.name')" width="180"></el-table-column>
-                <el-table-column prop="email" :label="$t('user.email')" width="180"></el-table-column>
+                <el-table-column prop="email" :label="$t('user.email')" width="280"></el-table-column>
                 <el-table-column prop="permission" :label="$t('user.permission')" width="180"></el-table-column>
                 <el-table-column prop="products" :label="$t('user.products')" width="180"></el-table-column>
                 <el-table-column label="" >

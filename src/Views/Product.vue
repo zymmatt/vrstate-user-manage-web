@@ -62,7 +62,7 @@ export default {
     },
     created() {
         const userdata = JSON.parse(sessionStorage.getItem('user'));
-        this.account.userid = userdata.userid;
+        this.account.userid = userdata.useridstr;
         this.account.name = userdata.name;
         this.account.mail = userdata.mail;
         this.account.company = userdata.company;

@@ -5,14 +5,20 @@ const en = {
         username: 'Username',
         password: 'Password',
         submit: 'Submit',
+        signin: 'Sign In',
         signup: 'Sign Up',
         register: 'Register',
-        company: 'company',
-        job: 'job',
-        mail: 'mail',
-        phone: 'phone',
-        name: 'name',
+        company: 'Company',
+        job: 'Job',
+        mail: 'Email',
+        phone: 'Phone',
+        name: 'Name',
         cancel: 'Cancel',
+        forgetpw: 'Forgot',
+        send: 'Send',
+        validate: 'Next',
+        changePW: 'Reset Password',
+        validateCode: 'Code',
     },
     home:{
         overview: "Overview",
@@ -22,7 +28,7 @@ const en = {
         mail: "Mail",
         company: "Company",
         phone: "Phone",
-        job: 'job',
+        job: 'Job',
         authority: "Permission",
         admin: "Admin",
         child: "Authorized",
@@ -66,6 +72,9 @@ const en = {
         product: 'Product',
         user: 'User'
     },
+
+
+
 
 }
 export default en
